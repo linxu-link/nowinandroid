@@ -25,25 +25,34 @@ import com.google.samples.apps.nowinandroid.benchmarks.BuildConfig
 import java.io.ByteArrayOutputStream
 
 /**
- * Convenience parameter to use proper package name with regards to build type and build flavor.
+ * 便捷参数，用于根据构建类型和构建风味使用正确的包名
  */
 val PACKAGE_NAME = buildString {
     append("com.google.samples.apps.nowinandroid")
     append(BuildConfig.APP_FLAVOR_SUFFIX)
 }
 
+/**
+ * 对元素执行向下向上快速滑动（fling）操作
+ *
+ * @param element 要滑动的元素
+ */
 fun UiDevice.flingElementDownUp(element: UiObject2) {
-    // Set some margin from the sides to prevent triggering system navigation
+    // 设置一些边距以防止触发系统导航
     element.setGestureMargin(displayWidth / 5)
 
-    element.fling(Direction.DOWN)
+    element.fling(Direction.DOWN) // 向下快速滑动
     waitForIdle()
-    element.fling(Direction.UP)
+    element.fling(Direction.UP)   // 向上快速滑动
 }
 
 /**
- * Waits until an object with [selector] if visible on screen and returns the object.
- * If the element is not available in [timeout], throws [AssertionError]
+ * 等待指定选择器的对象在屏幕上可见，并返回该对象
+ *
+ * @param selector 用于查找元素的选择器
+ * @param timeout 超时时间（毫秒）
+ * @return 找到的 UI 对象
+ * @throws AssertionError 如果在超时时间内未找到元素
  */
 fun UiDevice.waitAndFindObject(selector: BySelector, timeout: Long): UiObject2 {
     if (!wait(Until.hasObject(selector), timeout)) {
@@ -54,7 +63,9 @@ fun UiDevice.waitAndFindObject(selector: BySelector, timeout: Long): UiObject2 {
 }
 
 /**
- * Helper to dump window hierarchy into a string.
+ * 辅助函数：将窗口层级结构转储为字符串
+ *
+ * @return 窗口层级结构的字符串表示
  */
 fun UiDevice.dumpWindowHierarchy(): String {
     val buffer = ByteArrayOutputStream()

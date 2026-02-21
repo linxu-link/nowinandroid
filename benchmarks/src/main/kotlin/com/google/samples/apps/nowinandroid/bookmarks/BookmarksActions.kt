@@ -20,11 +20,14 @@ import androidx.benchmark.macro.MacrobenchmarkScope
 import androidx.test.uiautomator.By
 import com.google.samples.apps.nowinandroid.waitForObjectOnTopAppBar
 
+/**
+ * 导航到"收藏"页面
+ */
 fun MacrobenchmarkScope.goToBookmarksScreen() {
     val savedSelector = By.text("Saved")
     val savedButton = device.findObject(savedSelector)
     savedButton.click()
     device.waitForIdle()
-    // Wait until saved title are shown on screen
+    // 等待页面标题显示在屏幕上
     waitForObjectOnTopAppBar(savedSelector)
 }

@@ -28,27 +28,38 @@ import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 
+/**
+ * 话题列表滚动基准测试
+ *
+ * 测试在不同编译模式下滚动话题列表的性能
+ */
 @RunWith(AndroidJUnit4::class)
 class ScrollTopicListBenchmark {
     @get:Rule
     val benchmarkRule = MacrobenchmarkRule()
 
+    /**
+     * 使用基线配置文件测试状态变化性能
+     */
     @Test
     fun benchmarkStateChangeCompilationBaselineProfile() =
         benchmarkStateChange(CompilationMode.Partial())
 
+    /**
+     * 执行状态变化基准测试
+     */
     private fun benchmarkStateChange(compilationMode: CompilationMode) =
         benchmarkRule.measureRepeated(
             packageName = PACKAGE_NAME,
-            metrics = listOf(FrameTimingMetric()),
+            metrics = listOf(FrameTimingMetric()), // 帧时间指标
             compilationMode = compilationMode,
-            iterations = 10,
-            startupMode = StartupMode.WARM,
+            iterations = 10, // 迭代次数
+            startupMode = StartupMode.WARM, // 温启动模式
             setupBlock = {
-                // Start the app
+                // 启动应用
                 pressHome()
                 startActivityAndAllowNotifications()
-                // Navigate to interests screen
+                // 导航到兴趣页面
                 device.findObject(By.text("Interests")).click()
                 device.waitForIdle()
             },

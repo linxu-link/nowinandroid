@@ -29,24 +29,29 @@ import org.jetbrains.uast.UElement
 import org.jetbrains.uast.UQualifiedReferenceExpression
 
 /**
- * A detector that checks for incorrect usages of Compose Material APIs over equivalents in
- * the Now in Android design system module.
+ * 设计系统检测器
+ *
+ * 检查错误使用 Compose Material API 的情况，提倡使用 Now in Android 设计系统模块中的等价组件
  */
 class DesignSystemDetector : Detector(), Detector.UastScanner {
 
+    // 获取适用的 UAST 类型列表
     override fun getApplicableUastTypes(): List<Class<out UElement>> = listOf(
         UCallExpression::class.java,
         UQualifiedReferenceExpression::class.java,
     )
 
+    // 创建 UAST 处理器
     override fun createUastHandler(context: JavaContext): UElementHandler =
         object : UElementHandler() {
+            // 处理函数调用表达式
             override fun visitCallExpression(node: UCallExpression) {
                 val name = node.methodName ?: return
                 val preferredName = METHOD_NAMES[name] ?: return
                 reportIssue(context, node, name, preferredName)
             }
 
+            // 处理限定引用表达式
             override fun visitQualifiedReferenceExpression(node: UQualifiedReferenceExpression) {
                 val name = node.receiver.asRenderString()
                 val preferredName = RECEIVER_NAMES[name] ?: return
@@ -55,13 +60,15 @@ class DesignSystemDetector : Detector(), Detector.UastScanner {
         }
 
     companion object {
+        /**
+         * 设计系统问题定义
+         */
         @JvmField
         val ISSUE: Issue = Issue.create(
             id = "DesignSystem",
-            briefDescription = "Design system",
-            explanation = "This check highlights calls in code that use Compose Material " +
-                "composables instead of equivalents from the Now in Android design system " +
-                "module.",
+            briefDescription = "设计系统",
+            explanation = "此检查突出显示代码中使用 Compose Material " +
+                "composables 而非 Now in Android 设计系统模块中等价组件的调用。",
             category = Category.CUSTOM_LINT_CHECKS,
             priority = 7,
             severity = Severity.ERROR,
@@ -71,9 +78,12 @@ class DesignSystemDetector : Detector(), Detector.UastScanner {
             ),
         )
 
-        // Unfortunately :lint is a Java module and thus can't depend on the :core-designsystem
-        // Android module, so we can't use composable function references (eg. ::Button.name)
-        // instead of hardcoded names.
+        // 不幸的是，:lint 是一个 Java 模块，因此无法依赖 :core-designsystem
+        // Android 模块，所以我们不能使用 composable 函数引用（例如 ::Button.name）
+        // 而是需要使用硬编码的名称。
+        /**
+         * 方法名称映射表：将 Material 组件映射到 Nia 组件
+         */
         val METHOD_NAMES = mapOf(
             "MaterialTheme" to "NiaTheme",
             "Button" to "NiaButton",
@@ -96,10 +106,17 @@ class DesignSystemDetector : Detector(), Detector.UastScanner {
             "MediumTopAppBar" to "NiaTopAppBar",
             "LargeTopAppBar" to "NiaTopAppBar",
         )
+
+        /**
+         * 接收者名称映射表：将 Material Icons 映射到 NiaIcons
+         */
         val RECEIVER_NAMES = mapOf(
             "Icons" to "NiaIcons",
         )
 
+        /**
+         * 报告问题
+         */
         fun reportIssue(
             context: JavaContext,
             node: UElement,
@@ -110,7 +127,7 @@ class DesignSystemDetector : Detector(), Detector.UastScanner {
                 ISSUE,
                 node,
                 context.getLocation(node),
-                "Using $name instead of $preferredName",
+                "使用 $name 而非 $preferredName",
             )
         }
     }

@@ -24,16 +24,23 @@ import org.junit.Rule
 import org.junit.Test
 
 /**
- * Baseline Profile for app startup. This profile also enables using [Dex Layout Optimizations](https://developer.android.com/topic/performance/baselineprofiles/dex-layout-optimizations)
- * via the `includeInStartupProfile` parameter.
+ * 应用启动的基线配置文件
+ *
+ * 此配置文件还通过 `includeInStartupProfile` 参数启用了
+ * [Dex 布局优化](https://developer.android.com/topic/performance/baselineprofiles/dex-layout-optimizations)
  */
 class StartupBaselineProfile {
     @get:Rule val baselineProfileRule = BaselineProfileRule()
 
+    /**
+     * 生成启动基线配置文件
+     *
+     * 收集应用启动时的跟踪数据，用于优化首次启动性能
+     */
     @Test
     fun generate() = baselineProfileRule.collect(
         PACKAGE_NAME,
-        includeInStartupProfile = true,
+        includeInStartupProfile = true, // 包含在启动配置文件中
         profileBlock = MacrobenchmarkScope::startActivityAndAllowNotifications,
     )
 }

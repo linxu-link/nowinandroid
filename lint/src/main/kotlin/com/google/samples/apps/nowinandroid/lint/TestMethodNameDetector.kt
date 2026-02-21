@@ -35,14 +35,18 @@ import java.util.EnumSet
 import kotlin.io.path.Path
 
 /**
- * A detector that checks for common patterns in naming the test methods:
- * - [detectPrefix] removes unnecessary "test" prefix in all unit test.
- * - [detectFormat] Checks the `given_when_then` format of Android instrumented tests (backticks are not supported).
+ * 测试方法名称检测器
+ *
+ * 检查测试方法命名中的常见模式：
+ * - [detectPrefix] 移除所有单元测试中不必要的 "test" 前缀
+ * - [detectFormat] 检查 Android 仪器测试的 `given_when_then` 格式（不支持反引号）
  */
 class TestMethodNameDetector : Detector(), SourceCodeScanner {
 
+    // 适用的注解列表
     override fun applicableAnnotations() = listOf("org.junit.Test")
 
+    // 访问注解使用的方法
     override fun visitAnnotationUsage(
         context: JavaContext,
         element: UElement,
@@ -51,24 +55,28 @@ class TestMethodNameDetector : Detector(), SourceCodeScanner {
     ) {
         val method = usageInfo.referenced as? PsiMethod ?: return
 
-        method.detectPrefix(context, usageInfo)
-        method.detectFormat(context, usageInfo)
+        method.detectPrefix(context, usageInfo) // 检测前缀
+        method.detectFormat(context, usageInfo) // 检测格式
     }
 
+    // 判断是否为 Android 测试
     private fun JavaContext.isAndroidTest() = Path("androidTest") in file.toPath()
 
+    /**
+     * 检测并报告不必要的前缀
+     */
     private fun PsiMethod.detectPrefix(
         context: JavaContext,
         usageInfo: AnnotationUsageInfo,
     ) {
-        if (!name.startsWith("test")) return
+        if (!name.startsWith("test")) return // 如果不是以 test 开头，则返回
         context.report(
             issue = PREFIX,
             scope = usageInfo.usage,
             location = context.getNameLocation(this),
             message = PREFIX.getBriefDescription(RAW),
             quickfixData = LintFix.create()
-                .name("Remove prefix")
+                .name("移除前缀")
                 .replace().pattern("""test[\s_]*""")
                 .with("")
                 .autoFix()
@@ -76,11 +84,15 @@ class TestMethodNameDetector : Detector(), SourceCodeScanner {
         )
     }
 
+    /**
+     * 检测并报告不符合格式的方法名
+     */
     private fun PsiMethod.detectFormat(
         context: JavaContext,
         usageInfo: AnnotationUsageInfo,
     ) {
-        if (!context.isAndroidTest()) return
+        if (!context.isAndroidTest()) return // 如果不是 Android 测试，则返回
+        // 检查是否符合 given_when_then 或 when_then 格式
         if ("""[^\W_]+(_[^\W_]+){1,2}""".toRegex().matches(name)) return
         context.report(
             issue = FORMAT,
@@ -92,6 +104,9 @@ class TestMethodNameDetector : Detector(), SourceCodeScanner {
 
     companion object {
 
+        /**
+         * 创建 Issue 的辅助函数
+         */
         private fun issue(
             id: String,
             briefDescription: String,
@@ -109,18 +124,26 @@ class TestMethodNameDetector : Detector(), SourceCodeScanner {
             ),
         )
 
+        /**
+         * 测试方法前缀问题
+         * 检测以 "test" 开头的方法名
+         */
         @JvmField
         val PREFIX: Issue = issue(
             id = "TestMethodPrefix",
-            briefDescription = "Test method starts with `test`",
-            explanation = "Test method should not start with `test`.",
+            briefDescription = "测试方法以 'test' 开头",
+            explanation = "测试方法不应以 'test' 开头。",
         )
 
+        /**
+         * 测试方法格式问题
+         * 检测不符合 given_when_then 或 when_then 格式的方法名
+         */
         @JvmField
         val FORMAT: Issue = issue(
             id = "TestMethodFormat",
-            briefDescription = "Test method does not follow the `given_when_then` or `when_then` format",
-            explanation = "Test method should follow the `given_when_then` or `when_then` format.",
+            briefDescription = "测试方法不符合 'given_when_then' 或 'when_then' 格式",
+            explanation = "测试方法应遵循 'given_when_then' 或 'when_then' 格式。",
         )
     }
 }

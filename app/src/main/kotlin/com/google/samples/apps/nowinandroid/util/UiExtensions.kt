@@ -25,25 +25,49 @@ import kotlinx.coroutines.flow.conflate
 import kotlinx.coroutines.flow.distinctUntilChanged
 
 /**
- * Convenience wrapper for dark mode checking
+ * 检查深色模式是否启用的便捷包装属性
+ *
+ * 通过检查配置的 uiMode 与 UI_MODE_NIGHT_MASK 的比较来确定
+ *
+ * @return true 如果系统处于深色模式，false 否则
  */
 val Configuration.isSystemInDarkTheme
     get() = (uiMode and Configuration.UI_MODE_NIGHT_MASK) == Configuration.UI_MODE_NIGHT_YES
 
 /**
- * Registers listener for configuration changes to retrieve whether system is in dark theme or not.
- * Immediately upon subscribing, it sends the current value and then registers listener for changes.
+ * 注册配置变化监听器，以获取系统是否处于深色模式
+ *
+ * 这是一个协程 Flow，返回系统深色模式状态的变化
+ *
+ * 工作原理：
+ * 1. 立即发送当前值（订阅时）
+ * 2. 注册配置变化监听器
+ * 3. 当配置变化时，发送新的深色模式值
+ * 4. 当流关闭时，移除监听器
+ *
+ * 使用示例：
+ * ```
+ * isSystemInDarkTheme().collect { isDark ->
+ *     // 处理深色模式变化
+ * }
+ * ```
+ *
+ * @return Flow<Boolean> 深色模式状态流
  */
 fun ComponentActivity.isSystemInDarkTheme() = callbackFlow {
+    // 立即发送当前值
     channel.trySend(resources.configuration.isSystemInDarkTheme)
 
+    // 创建配置变化监听器
     val listener = Consumer<Configuration> {
         channel.trySend(it.isSystemInDarkTheme)
     }
 
+    // 注册监听器
     addOnConfigurationChangedListener(listener)
 
+    // 当流关闭时，移除监听器
     awaitClose { removeOnConfigurationChangedListener(listener) }
 }
-    .distinctUntilChanged()
-    .conflate()
+    .distinctUntilChanged() // 过滤重复值
+    .conflate() // 合并快速发送的值，避免积压

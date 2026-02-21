@@ -38,6 +38,17 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.datetime.TimeZone
 
+/**
+ * 创建并记住 [NiaAppState] 的实例
+ *
+ * 这是创建应用状态的入口点，使用 remember 确保状态在重组时保持一致
+ *
+ * @param networkMonitor 网络监控器
+ * @param userNewsResourceRepository 用户新闻资源仓库
+ * @param timeZoneMonitor 时区监控器
+ * @param coroutineScope 协程作用域，默认为 rememberCoroutineScope
+ * @return NiaAppState 实例
+ */
 @Composable
 fun rememberNiaAppState(
     networkMonitor: NetworkMonitor,
@@ -45,10 +56,13 @@ fun rememberNiaAppState(
     timeZoneMonitor: TimeZoneMonitor,
     coroutineScope: CoroutineScope = rememberCoroutineScope(),
 ): NiaAppState {
+    // 创建导航状态，使用 ForYouNavKey 作为起始导航项
     val navigationState = rememberNavigationState(ForYouNavKey, TOP_LEVEL_NAV_ITEMS.keys)
 
+    // 启动导航追踪副作用
     NavigationTrackingSideEffect(navigationState)
 
+    // 记住并返回 NiaAppState 实例
     return remember(
         navigationState,
         coroutineScope,
@@ -66,6 +80,17 @@ fun rememberNiaAppState(
     }
 }
 
+/**
+ * 应用状态管理器
+ *
+ * 负责管理：
+ * 1. 导航状态
+ * 2. 网络连接状态
+ * 3. 未读资源追踪
+ * 4. 时区信息
+ *
+ * 使用 @Stable 注解告诉 Compose 此类的属性不会频繁变化，有助于优化重组
+ */
 @Stable
 class NiaAppState(
     val navigationState: NavigationState,
@@ -74,6 +99,12 @@ class NiaAppState(
     userNewsResourceRepository: UserNewsResourceRepository,
     timeZoneMonitor: TimeZoneMonitor,
 ) {
+    /**
+     * 网络是否离线
+     * 通过 map(Boolean::not) 将在线状态反转
+     * 使用 WhileSubscribed(5_000) 表示当没有订阅者时，5秒后停止收集
+     * 初始值为 false（假设在线）
+     */
     val isOffline = networkMonitor.isOnline
         .map(Boolean::not)
         .stateIn(
@@ -83,13 +114,21 @@ class NiaAppState(
         )
 
     /**
-     * The top level nav keys that have unread news resources.
+     * 包含未读新闻资源的一级导航键集合
+     *
+     * 逻辑说明：
+     * 1. 观察所有已关注话题的新闻资源
+     * 2. 观察所有已收藏的新闻资源
+     * 3. 如果 ForYou 中有任何未读资源，添加 ForYouNavKey
+     * 4. 如果收藏中有任何未读资源，添加 BookmarksNavKey
      */
     val topLevelNavKeysWithUnreadResources: StateFlow<Set<NavKey>> =
         userNewsResourceRepository.observeAllForFollowedTopics()
             .combine(userNewsResourceRepository.observeAllBookmarked()) { forYouNewsResources, bookmarkedNewsResources ->
                 setOfNotNull(
+                    // 如果有未读的新闻资源，则包含 ForYouNavKey
                     ForYouNavKey.takeIf { forYouNewsResources.any { !it.hasBeenViewed } },
+                    // 如果有未读的收藏资源，则包含 BookmarksNavKey
                     BookmarksNavKey.takeIf { bookmarkedNewsResources.any { !it.hasBeenViewed } },
                 )
             }
@@ -99,6 +138,10 @@ class NiaAppState(
                 initialValue = emptySet(),
             )
 
+    /**
+     * 当前时区
+     * 默认使用系统当前时区
+     */
     val currentTimeZone = timeZoneMonitor.currentTimeZone
         .stateIn(
             coroutineScope,
@@ -108,12 +151,16 @@ class NiaAppState(
 }
 
 /**
- * Stores information about navigation events to be used with JankStats
+ * 存储导航事件信息，用于 JankStats 性能追踪
+ *
+ * 这是一个副作用组件，用于在导航状态变化时更新 JankStats
+ * 使性能监控工具能够正确追踪导航相关的卡顿
  */
 @Composable
 private fun NavigationTrackingSideEffect(navigationState: NavigationState) {
     TrackDisposableJank(navigationState.currentKey) { metricsHolder ->
+        // 将当前导航键存储到 JankStats 状态中
         metricsHolder.state?.putState("Navigation", navigationState.currentKey.toString())
-        onDispose {}
+        onDispose {} // 清理函数，这里为空
     }
 }

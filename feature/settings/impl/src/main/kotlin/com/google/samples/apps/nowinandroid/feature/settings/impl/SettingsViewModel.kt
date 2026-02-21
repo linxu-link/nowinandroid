@@ -32,10 +32,22 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 import kotlin.time.Duration.Companion.seconds
 
+/**
+ * 设置页面的 ViewModel
+ *
+ * 负责管理：
+ * - 主题品牌设置（默认/Android）
+ * - 深色主题配置（跟随系统/浅色/深色）
+ * - 动态颜色偏好（Material You）
+ */
 @HiltViewModel
 class SettingsViewModel @Inject constructor(
     private val userDataRepository: UserDataRepository,
 ) : ViewModel() {
+
+    /**
+     * 设置 UI 状态
+     */
     val settingsUiState: StateFlow<SettingsUiState> =
         userDataRepository.userData
             .map { userData ->
@@ -53,18 +65,33 @@ class SettingsViewModel @Inject constructor(
                 initialValue = Loading,
             )
 
+    /**
+     * 更新主题品牌
+     *
+     * @param themeBrand 主题品牌
+     */
     fun updateThemeBrand(themeBrand: ThemeBrand) {
         viewModelScope.launch {
             userDataRepository.setThemeBrand(themeBrand)
         }
     }
 
+    /**
+     * 更新深色主题配置
+     *
+     * @param darkThemeConfig 深色主题配置
+     */
     fun updateDarkThemeConfig(darkThemeConfig: DarkThemeConfig) {
         viewModelScope.launch {
             userDataRepository.setDarkThemeConfig(darkThemeConfig)
         }
     }
 
+    /**
+     * 更新动态颜色偏好
+     *
+     * @param useDynamicColor 是否使用动态颜色
+     */
     fun updateDynamicColorPreference(useDynamicColor: Boolean) {
         viewModelScope.launch {
             userDataRepository.setDynamicColorPreference(useDynamicColor)
@@ -73,7 +100,11 @@ class SettingsViewModel @Inject constructor(
 }
 
 /**
- * Represents the settings which the user can edit within the app.
+ * 表示用户可以在应用内编辑的设置
+ *
+ * @param brand 主题品牌
+ * @param useDynamicColor 是否使用动态颜色（Material You）
+ * @param darkThemeConfig 深色主题配置
  */
 data class UserEditableSettings(
     val brand: ThemeBrand,
@@ -81,7 +112,19 @@ data class UserEditableSettings(
     val darkThemeConfig: DarkThemeConfig,
 )
 
+/**
+ * 设置页面的 UI 状态密封接口
+ */
 sealed interface SettingsUiState {
+    /**
+     * 加载中状态
+     */
     data object Loading : SettingsUiState
+
+    /**
+     * 成功状态
+     *
+     * @param settings 用户可编辑的设置
+     */
     data class Success(val settings: UserEditableSettings) : SettingsUiState
 }

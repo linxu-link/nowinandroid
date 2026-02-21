@@ -26,17 +26,24 @@ import org.junit.Rule
 import org.junit.Test
 
 /**
- * Baseline Profile of the "For You" screen
+ * "为你推荐"页面的基线配置文件生成
+ *
+ * 用于生成优化应用启动和运行时性能的基线配置文件
  */
 class ForYouBaselineProfile {
     @get:Rule val baselineProfileRule = BaselineProfileRule()
 
+    /**
+     * 生成基线配置文件
+     *
+     * 收集典型用户旅程的跟踪数据，用于生成优化的基线配置文件
+     */
     @Test
     fun generate() =
         baselineProfileRule.collect(PACKAGE_NAME) {
             startActivityAndAllowNotifications()
 
-            // Scroll the feed critical user journey
+            // 滚动订阅源的关键用户旅程
             forYouWaitForContent()
             forYouSelectTopics(true)
             forYouScrollFeedDownUp()

@@ -21,28 +21,28 @@ import androidx.benchmark.macro.StartupTimingMetric
 import androidx.benchmark.macro.TraceSectionMetric
 
 /**
- * Custom Metrics to measure baseline profile effectiveness.
+ * 自定义指标，用于测量基线配置文件的有效性
  */
 class BaselineProfileMetrics {
     companion object {
         /**
-         * A [TraceSectionMetric] that tracks the time spent in JIT compilation.
+         * 跟踪 JIT 编译时间的 [TraceSectionMetric]
          *
-         * This number should go down when a baseline profile is applied properly.
+         * 当正确应用基线配置文件后，这个数值应该会下降
          */
         @OptIn(ExperimentalMetricApi::class)
         val jitCompilationMetric = TraceSectionMetric("JIT Compiling %", label = "JIT compilation")
 
         /**
-         * A [TraceSectionMetric] that tracks the time spent in class initialization.
+         * 跟踪类初始化时间的 [TraceSectionMetric]
          *
-         * This number should go down when a baseline profile is applied properly.
+         * 当正确应用基线配置文件后，这个数值应该会下降
          */
         @OptIn(ExperimentalMetricApi::class)
         val classInitMetric = TraceSectionMetric("L%/%;", label = "ClassInit")
 
         /**
-         * Metrics relevant to startup and baseline profile effectiveness measurement.
+         * 与启动和基线配置文件有效性测量相关的指标
          */
         @OptIn(ExperimentalMetricApi::class)
         val allMetrics = listOf(StartupTimingMetric(), jitCompilationMetric, classInitMetric)

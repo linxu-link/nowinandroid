@@ -26,10 +26,9 @@ import androidx.test.uiautomator.UiObject2
 import androidx.test.uiautomator.Until
 
 /**
- * Because the app under test is different from the one running the instrumentation test,
- * the permission has to be granted manually by either:
+ * 因为被测试的应用与运行插桩测试的应用不同，权限需要手动授予：
  *
- * - tapping the Allow button
+ * - 点击允许按钮
  *    ```kotlin
  *    val obj = By.text("Allow")
  *    val dialog = device.wait(Until.findObject(obj), TIMEOUT)
@@ -38,18 +37,18 @@ import androidx.test.uiautomator.Until
  *        device.wait(Until.gone(obj), 5_000)
  *    }
  *    ```
- * - or (preferred) executing the grant command on the target package.
+ * - 或者（推荐）在目标包上执行授予命令
  */
 fun MacrobenchmarkScope.allowNotifications() {
     if (SDK_INT >= TIRAMISU) {
+        // 授予通知权限（Android 13+）
         val command = "pm grant $packageName ${permission.POST_NOTIFICATIONS}"
         device.executeShellCommand(command)
     }
 }
 
 /**
- * Wraps starting the default activity, waiting for it to start and then allowing notifications in
- * one convenient call.
+ * 包装启动默认Activity、等待启动完成并授予通知权限的便捷函数
  */
 fun MacrobenchmarkScope.startActivityAndAllowNotifications() {
     startActivityAndWait()
@@ -57,7 +56,7 @@ fun MacrobenchmarkScope.startActivityAndAllowNotifications() {
 }
 
 /**
- * Waits for and returns the `niaTopAppBar`
+ * 等待并返回 niaTopAppBar 顶部应用栏
  */
 fun MacrobenchmarkScope.getTopAppBar(): UiObject2 {
     device.wait(Until.hasObject(By.res("niaTopAppBar")), 2_000)
@@ -65,7 +64,10 @@ fun MacrobenchmarkScope.getTopAppBar(): UiObject2 {
 }
 
 /**
- * Waits for an object on the top app bar, passed in as [selector].
+ * 等待顶部应用栏上的对象出现
+ *
+ * @param selector 选择器
+ * @param timeout 超时时间（毫秒）
  */
 fun MacrobenchmarkScope.waitForObjectOnTopAppBar(selector: BySelector, timeout: Long = 2_000) {
     getTopAppBar().wait(Until.hasObject(selector), timeout)

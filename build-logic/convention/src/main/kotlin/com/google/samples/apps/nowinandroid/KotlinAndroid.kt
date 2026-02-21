@@ -29,41 +29,55 @@ import org.jetbrains.kotlin.gradle.dsl.KotlinBaseExtension
 import org.jetbrains.kotlin.gradle.dsl.KotlinJvmProjectExtension
 
 /**
- * Configure base Kotlin with Android options
+ * 配置 Android 项目的 Kotlin 选项
+ *
+ * 此函数负责：
+ * 1. 设置编译 SDK 和最小 SDK 版本
+ * 2. 配置 Java 兼容性和脱糖支持
+ * 3. 配置 Kotlin 编译器选项
  */
 internal fun Project.configureKotlinAndroid(
     commonExtension: CommonExtension,
 ) {
     commonExtension.apply {
+        // 设置编译 SDK 版本
         compileSdk = 36
 
+        // 配置默认最小 SDK 版本
         defaultConfig.apply {
             minSdk = 23
         }
 
+        // 配置编译选项
         compileOptions.apply {
-            // Up to Java 11 APIs are available through desugaring
+            // 启用 Java 11 API 支持（通过脱糖实现）
+            // 允许在旧版 Android 上使用 Java 11 API
             // https://developer.android.com/studio/write/java11-minimal-support-table
             sourceCompatibility = JavaVersion.VERSION_11
             targetCompatibility = JavaVersion.VERSION_11
-            isCoreLibraryDesugaringEnabled = true
+            isCoreLibraryDesugaringEnabled = true // 启用核心库脱糖
         }
     }
 
+    // 配置 Kotlin 扩展
     configureKotlin<KotlinAndroidProjectExtension>()
 
+    // 添加核心库脱糖依赖
     dependencies {
         "coreLibraryDesugaring"(libs.findLibrary("android.desugarJdkLibs").get())
     }
 }
 
 /**
- * Configure base Kotlin options for JVM (non-Android)
+ * 配置 JVM（非 Android）项目的 Kotlin 选项
+ *
+ * 此函数负责：
+ * 1. 设置 Java 兼容性版本
+ * 2. 配置 Kotlin 编译器选项
  */
 internal fun Project.configureKotlinJvm() {
     extensions.configure<JavaPluginExtension> {
-        // Up to Java 11 APIs are available through desugaring
-        // https://developer.android.com/studio/write/java11-minimal-support-table
+        // 启用 Java 11 API 支持（通过脱糖实现）
         sourceCompatibility = JavaVersion.VERSION_11
         targetCompatibility = JavaVersion.VERSION_11
     }
@@ -72,36 +86,50 @@ internal fun Project.configureKotlinJvm() {
 }
 
 /**
- * Configure base Kotlin options
+ * 配置基础 Kotlin 选项
+ *
+ * 此函数负责：
+ * 1. 设置 JVM 目标版本
+ * 2. 配置警告为错误处理
+ * 3. 添加实验性 API 的 opt-in 参数
+ * 4. 配置数据类 copy 方法的可见性
  */
 private inline fun <reified T : KotlinBaseExtension> Project.configureKotlin() = configure<T> {
-    // Treat all Kotlin warnings as errors (disabled by default)
-    // Override by setting warningsAsErrors=true in your ~/.gradle/gradle.properties
+    // 将所有 Kotlin 警告视为错误（默认禁用）
+    // 可以在 ~/.gradle/gradle.properties 中设置 warningsAsErrors=true 来启用
     val warningsAsErrors = providers.gradleProperty("warningsAsErrors").map {
         it.toBoolean()
     }.orElse(false)
+
+    // 根据项目类型获取编译器选项
     when (this) {
         is KotlinAndroidProjectExtension -> compilerOptions
         is KotlinJvmProjectExtension -> compilerOptions
         else -> TODO("Unsupported project extension $this ${T::class}")
     }.apply {
+        // 设置 JVM 目标版本
         jvmTarget = JvmTarget.JVM_11
+
+        // 是否将所有警告视为错误
         allWarningsAsErrors = warningsAsErrors
+
+        // 添加自由编译器参数
         freeCompilerArgs.add(
-            // Enable experimental coroutines APIs, including Flow
+            // 启用实验性协程 API，包括 Flow
             "-opt-in=kotlinx.coroutines.ExperimentalCoroutinesApi",
         )
+
         freeCompilerArgs.add(
             /**
-             * Remove this args after Phase 3.
+             * 移除此参数在 Phase 3 之后。
              * https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-consistent-copy-visibility/#deprecation-timeline
              *
-             * Deprecation timeline
-             * Phase 3. (Supposedly Kotlin 2.2 or Kotlin 2.3).
-             * The default changes.
-             * Unless ExposedCopyVisibility is used, the generated 'copy' method has the same visibility as the primary constructor.
-             * The binary signature changes. The error on the declaration is no longer reported.
-             * '-Xconsistent-data-class-copy-visibility' compiler flag and ConsistentCopyVisibility annotation are now unnecessary.
+             * 弃用时间线
+             * Phase 3（预计 Kotlin 2.2 或 Kotlin 2.3）。
+             * 默认值会发生变化。
+             * 除非使用 ExposedCopyVisibility，否则生成的 'copy' 方法具有与主构造函数相同的可见性。
+             * 二进制签名会发生变化。声明上的错误将不再报告。
+             * '-Xconsistent-data-class-copy-visibility' 编译器标志和 ConsistentCopyVisibility 注解变得不必要。
              */
             "-Xconsistent-data-class-copy-visibility",
         )

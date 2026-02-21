@@ -27,34 +27,56 @@ import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 
+/**
+ * "为你推荐"订阅源滚动基准测试
+ *
+ * 测试在不同编译模式下滚动"为你推荐"页面的性能
+ */
 @RunWith(AndroidJUnit4ClassRunner::class)
 class ScrollForYouFeedBenchmark {
     @get:Rule
     val benchmarkRule = MacrobenchmarkRule()
 
+    /**
+     * 测试无编译模式下的滚动性能
+     */
     @Test
     fun scrollFeedCompilationNone() = scrollFeed(CompilationMode.None())
 
+    /**
+     * 测试基线配置文件模式下的滚动性能
+     */
     @Test
     fun scrollFeedCompilationBaselineProfile() = scrollFeed(CompilationMode.Partial())
 
+    /**
+     * 测试完全编译模式下的滚动性能
+     */
     @Test
     fun scrollFeedCompilationFull() = scrollFeed(CompilationMode.Full())
 
+    /**
+     * 执行滚动基准测试
+     *
+     * @param compilationMode 编译模式
+     */
     private fun scrollFeed(compilationMode: CompilationMode) = benchmarkRule.measureRepeated(
         packageName = PACKAGE_NAME,
-        metrics = listOf(FrameTimingMetric()),
+        metrics = listOf(FrameTimingMetric()), // 帧时间指标
         compilationMode = compilationMode,
-        iterations = 10,
-        startupMode = StartupMode.WARM,
+        iterations = 10, // 迭代次数
+        startupMode = StartupMode.WARM, // 温启动模式
         setupBlock = {
-            // Start the app
+            // 启动应用
             pressHome()
             startActivityAndAllowNotifications()
         },
     ) {
+        // 等待内容加载
         forYouWaitForContent()
+        // 选择话题
         forYouSelectTopics()
+        // 滚动订阅源
         forYouScrollFeedDownUp()
     }
 }

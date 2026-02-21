@@ -5,6 +5,8 @@
 Now in Android 应用
 ==================
 
+> **注意**：本项目的中文文档和代码注释翻译由 AI 大模型辅助完成，旨在帮助中文开发者更好地理解项目。
+
 **了解此应用的设计和构建过程，请参阅[设计案例研究](https://goo.gle/nia-figma)、[架构学习之旅](docs/ArchitectureLearningJourney.md)和[模块化学习之旅](docs/ModularizationLearningJourney.md)。**
 
 这是 [Now in Android](https://developer.android.com/series/now-in-android) 应用的代码仓库。这是一个**正在开发中**的项目 🚧。
@@ -20,7 +22,7 @@ Now in Android 应用
 
 ## 截图
 
-![截图显示"为你推荐"屏幕、"兴趣"屏幕和"话题详情"屏幕](docs/images/screenshots.png "截图显示"为你推荐"屏幕、"兴趣"屏幕和"话题详情"屏幕")
+![image](docs/images/screenshots.png")
 
 # 开发环境
 

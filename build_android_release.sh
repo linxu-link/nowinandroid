@@ -16,35 +16,40 @@
 #   limitations under the License.
 #
 
-# IGNORE this file, it's only used in the internal Google release process
+# 请忽略此文件，它仅用于 Google 内部发布流程
 
+# 获取脚本所在目录
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 APP_OUT=$DIR/app/build/outputs
 
+# 设置 JAVA_HOME 指向预构建的 JDK 17
 export JAVA_HOME="$(cd $DIR/../nowinandroid-prebuilts/jdk17/linux && pwd )"
 echo "JAVA_HOME=$JAVA_HOME"
 
+# 设置 ANDROID_HOME 指向预构建的完整 SDK
 export ANDROID_HOME="$(cd $DIR/../../../prebuilts/fullsdk/linux && pwd )"
 echo "ANDROID_HOME=$ANDROID_HOME"
 
-echo "Copying google-services.json"
+# 复制 google-services.json 文件
+echo "正在复制 google-services.json"
 cp $DIR/../nowinandroid-prebuilts/google-services.json $DIR/app
 
-echo "Copying local.properties"
+# 复制 local.properties 文件
+echo "正在复制 local.properties"
 cp $DIR/../nowinandroid-prebuilts/local.properties $DIR
 
 cd $DIR
 
-# Build the prodRelease variant
+# 构建 prodRelease 变体
 GRADLE_PARAMS=" --stacktrace -Puse-google-services"
 $DIR/gradlew :app:clean :app:assembleProdRelease :app:bundleProdRelease ${GRADLE_PARAMS}
 BUILD_RESULT=$?
 
-# Prod release apk
+# 复制生产发布版 APK
 cp $APP_OUT/apk/prod/release/app-prod-release.apk $DIST_DIR/app-prod-release.apk
-# Prod release bundle
+# 复制生产发布版 Bundle
 cp $APP_OUT/bundle/prodRelease/app-prod-release.aab $DIST_DIR/app-prod-release.aab
-# Prod release bundle mapping
+# 复制生产发布版 Bundle 映射文件
 cp $APP_OUT/mapping/prodRelease/mapping.txt $DIST_DIR/mobile-release-aab-mapping.txt
 
 exit $BUILD_RESULT

@@ -25,28 +25,32 @@ import com.google.samples.apps.nowinandroid.waitAndFindObject
 import com.google.samples.apps.nowinandroid.waitForObjectOnTopAppBar
 import org.junit.Assert.fail
 
+/**
+ * 等待"为你推荐"页面内容加载完成
+ */
 fun MacrobenchmarkScope.forYouWaitForContent() {
-    // Wait until content is loaded by checking if topics are loaded
+    // 等待内容加载完成（通过检查加载指示器是否消失）
     device.wait(Until.gone(By.res("loadingWheel")), 5_000)
-    // Sometimes, the loading wheel is gone, but the content is not loaded yet
-    // So we'll wait here for topics to be sure
+    // 有时候加载指示器消失了，但内容还没加载完成
+    // 所以我们在这里等待主题加载完成以确保
     val obj = device.waitAndFindObject(By.res("forYou:topicSelection"), 10_000)
-    // Timeout here is quite big, because sometimes data loading takes a long time!
+    // 这里的超时时间比较大，因为有时候数据加载需要很长时间！
     obj.wait(untilHasChildren(), 60_000)
 }
 
 /**
- * Selects some topics, which will show the feed content for them.
- * [recheckTopicsIfChecked] Topics may be already checked from the previous iteration.
+ * 选择一些话题，这将显示它们的订阅源内容
+ *
+ * @param recheckTopicsIfChecked 话题可能已经从上一次迭代中选中了，是否重新检查
  */
 fun MacrobenchmarkScope.forYouSelectTopics(recheckTopicsIfChecked: Boolean = false) {
     val topics = device.findObject(By.res("forYou:topicSelection"))
 
-    // Set gesture margin from sides not to trigger system gesture navigation
+    // 设置手势边距，避免触发系统手势导航
     val horizontalMargin = 10 * topics.visibleBounds.width() / 100
     topics.setGestureMargins(horizontalMargin, 0, horizontalMargin, 0)
 
-    // Select some topics to show some feed content
+    // 选择一些话题以显示订阅源内容
     var index = 0
     var visited = 0
 
@@ -54,25 +58,25 @@ fun MacrobenchmarkScope.forYouSelectTopics(recheckTopicsIfChecked: Boolean = fal
         if (topics.childCount == 0) {
             fail("No topics found, can't generate profile for ForYou page.")
         }
-        // Selecting some topics, which will populate items in the feed.
+        // 选择话题，这将填充订阅源中的项目
         val topic = topics.children[index % topics.childCount]
-        // Find the checkable element to figure out whether it's checked or not
+        // 找到可勾选的元素以确定它是否被选中
         val topicCheckIcon = topic.findObject(By.checkable(true))
-        // Topic icon may not be visible if it's out of the screen boundaries
-        // If that's the case, let's try another index
+        // 如果话题图标不在屏幕可见范围内，可能为 null
+        // 如果是这种情况，我们尝试另一个索引
         if (topicCheckIcon == null) {
             index++
             continue
         }
 
         when {
-            // Topic wasn't checked, so just do that
+            // 话题未被选中，执行选中
             !topicCheckIcon.isChecked -> {
                 topic.click()
                 device.waitForIdle()
             }
 
-            // Topic was checked already and we want to recheck it, so just do it twice
+            // 话题已经被选中且我们想要重新检查，执行两次点击
             recheckTopicsIfChecked -> {
                 repeat(2) {
                     topic.click()
@@ -81,7 +85,7 @@ fun MacrobenchmarkScope.forYouSelectTopics(recheckTopicsIfChecked: Boolean = fal
             }
 
             else -> {
-                // Topic is checked, but we don't recheck it
+                // 话题已被选中，但我们不重新检查
             }
         }
 
@@ -90,19 +94,27 @@ fun MacrobenchmarkScope.forYouSelectTopics(recheckTopicsIfChecked: Boolean = fal
     }
 }
 
+/**
+ * 在"为你推荐"订阅源中向下向上滚动
+ */
 fun MacrobenchmarkScope.forYouScrollFeedDownUp() {
     val feedList = device.findObject(By.res("forYou:feed"))
     device.flingElementDownUp(feedList)
 }
 
+/**
+ * 设置应用主题
+ *
+ * @param isDark 是否为深色主题
+ */
 fun MacrobenchmarkScope.setAppTheme(isDark: Boolean) {
     when (isDark) {
-        true -> device.findObject(By.text("Dark")).click()
-        false -> device.findObject(By.text("Light")).click()
+        true -> device.findObject(By.text("Dark")).click()   // 点击深色模式
+        false -> device.findObject(By.text("Light")).click() // 点击浅色模式
     }
     device.waitForIdle()
-    device.findObject(By.text("OK")).click()
+    device.findObject(By.text("OK")).click() // 确认选择
 
-    // Wait until the top app bar is visible on screen
+    // 等待顶部应用栏在屏幕上可见
     waitForObjectOnTopAppBar(By.text("Now in Android"))
 }

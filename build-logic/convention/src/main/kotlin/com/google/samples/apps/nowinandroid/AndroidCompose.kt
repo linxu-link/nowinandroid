@@ -24,27 +24,39 @@ import org.gradle.kotlin.dsl.dependencies
 import org.jetbrains.kotlin.compose.compiler.gradle.ComposeCompilerGradlePluginExtension
 
 /**
- * Configure Compose-specific options
+ * 配置 Compose 特定的选项
+ *
+ * 此函数负责：
+ * 1. 启用 Compose 构建特性
+ * 2. 配置 Compose BOM 依赖
+ * 3. 配置 Compose 编译器指标和报告
+ * 4. 配置稳定性配置文件
  */
 internal fun Project.configureAndroidCompose(
     commonExtension: CommonExtension,
 ) {
     commonExtension.apply {
+        // 启用 Compose 支持
         buildFeatures.apply {
             compose = true
         }
 
+        // 配置 Compose 依赖
         dependencies {
+            // 获取 Compose BOM (Bill of Materials) 用于版本管理
             val bom = libs.findLibrary("androidx-compose-bom").get()
-            "implementation"(platform(bom))
-            "androidTestImplementation"(platform(bom))
-            "implementation"(libs.findLibrary("androidx-compose-ui-tooling-preview").get())
-            "debugImplementation"(libs.findLibrary("androidx-compose-ui-tooling").get())
+            "implementation"(platform(bom)) // 应用 BOM 到项目
+            "androidTestImplementation"(platform(bom)) // Android 测试使用 BOM
+            "implementation"(libs.findLibrary("androidx-compose-ui-tooling-preview").get()) // Compose UI 预览
+            "debugImplementation"(libs.findLibrary("androidx-compose-ui-tooling").get()) // 调试工具
         }
     }
 
+    // 配置 Compose 编译器扩展
     extensions.configure<ComposeCompilerGradlePluginExtension> {
+        // 仅当属性值为 true 时才启用
         fun Provider<String>.onlyIfTrue() = flatMap { provider { it.takeIf(String::toBoolean) } }
+        // 获取相对于根项目的目录
         fun Provider<*>.relativeToRootProject(dir: String) = map {
             @Suppress("UnstableApiUsage")
             isolated.rootProject.projectDirectory
@@ -52,14 +64,20 @@ internal fun Project.configureAndroidCompose(
                 .dir(projectDir.toRelativeString(rootDir))
         }.map { it.dir(dir) }
 
+        // 配置 Compose 编译器指标输出目录
+        // 使用方法：./gradlew assembleRelease -PenableComposeCompilerMetrics=true
         project.providers.gradleProperty("enableComposeCompilerMetrics").onlyIfTrue()
             .relativeToRootProject("compose-metrics")
             .let(metricsDestination::set)
 
+        // 配置 Compose 编译器报告输出目录
+        // 使用方法：./gradlew assembleRelease -PenableComposeCompilerReports=true
         project.providers.gradleProperty("enableComposeCompilerReports").onlyIfTrue()
             .relativeToRootProject("compose-reports")
             .let(reportsDestination::set)
 
+        // 添加稳定性配置文件
+        // 用于告诉编译器哪些类是稳定的，从而优化重组
         @Suppress("UnstableApiUsage")
         stabilityConfigurationFiles
             .add(isolated.rootProject.projectDirectory.file("compose_compiler_config.conf"))

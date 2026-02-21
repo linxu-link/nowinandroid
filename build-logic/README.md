@@ -1,38 +1,27 @@
-# Convention Plugins
+# Convention 插件
 
-The `build-logic` folder defines project-specific convention plugins, used to keep a single
-source of truth for common module configurations.
+`build-logic` 文件夹定义了项目特定的 Convention 插件，用于维护通用模块配置的单一事实来源。
 
-This approach is heavily based on
-[https://developer.squareup.com/blog/herding-elephants/](https://developer.squareup.com/blog/herding-elephants/)
-and
-[https://github.com/jjohannes/idiomatic-gradle](https://github.com/jjohannes/idiomatic-gradle).
+这种做法主要基于：
+- [https://developer.squareup.com/blog/herding-elephants/](https://developer.squareup.com/blog/herding-elephants/)
+- [https://github.com/jjohannes/idiomatic-gradle](https://github.com/jjohannes/idiomatic-gradle)
 
-By setting up convention plugins in `build-logic`, we can avoid duplicated build script setup,
-messy `subproject` configurations, without the pitfalls of the `buildSrc` directory.
+通过在 `build-logic` 中设置 Convention 插件，我们可以避免重复的构建脚本设置和混乱的 `subproject` 配置，同时避免 `buildSrc` 目录的缺点。
 
-`build-logic` is an included build, as configured in the root
-[`settings.gradle.kts`](../settings.gradle.kts).
+`build-logic` 是一个 included build，配置在根目录的 [`settings.gradle.kts`](../settings.gradle.kts) 中。
 
-Inside `build-logic` is a `convention` module, which defines a set of plugins that all normal
-modules can use to configure themselves.
+在 `build-logic` 内部有一个 `convention` 模块，它定义了一组插件，所有普通模块都可以使用这些插件来配置自己。
 
-`build-logic` also includes a set of `Kotlin` files used to share logic between plugins themselves,
-which is most useful for configuring Android components (libraries vs applications) with shared
-code.
+`build-logic` 还包括一组 `Kotlin` 文件，用于在插件之间共享逻辑，这对于使用共享代码配置 Android 组件（库与应用）非常有用。
 
-These plugins are *additive* and *composable*, and try to only accomplish a single responsibility.
-Modules can then pick and choose the configurations they need.
-If there is one-off logic for a module without shared code, it's preferable to define that directly
-in the module's `build.gradle`, as opposed to creating a convention plugin with module-specific
-setup.
+这些插件是**可添加的**和**可组合的**，并且只尝试完成单一职责。模块可以选择它们需要的配置。如果某个模块有一次性的逻辑且没有共享代码，最好直接在模块的 `build.gradle` 中定义，而不是创建具有模块特定设置的 Convention 插件。
 
-Current list of convention plugins:
+当前 Convention 插件列表：
 
-- [`nowinandroid.android.application`](convention/src/main/kotlin/AndroidApplicationConventionPlugin.kt),
-  [`nowinandroid.android.library`](convention/src/main/kotlin/AndroidLibraryConventionPlugin.kt),
-  [`nowinandroid.android.test`](convention/src/main/kotlin/AndroidTestConventionPlugin.kt):
-  Configures common Android and Kotlin options.
-- [`nowinandroid.android.application.compose`](convention/src/main/kotlin/AndroidApplicationComposeConventionPlugin.kt),
-  [`nowinandroid.android.library.compose`](convention/src/main/kotlin/AndroidLibraryComposeConventionPlugin.kt):
-  Configures Jetpack Compose options
+- [`nowinandroid.android.application`](convention/src/main/kotlin/AndroidApplicationConventionPlugin.kt)、
+  [`nowinandroid.android.library`](convention/src/main/kotlin/AndroidLibraryConventionPlugin.kt)、
+  [`nowinandroid.android.test`](convention/src/main/kotlin/AndroidTestConventionPlugin.kt)：
+  配置通用的 Android 和 Kotlin 选项。
+- [`nowinandroid.android.application.compose`](convention/src/main/kotlin/AndroidApplicationComposeConventionPlugin.kt)、
+  [`nowinandroid.android.library.compose`](convention/src/main/kotlin/AndroidLibraryComposeConventionPlugin.kt)：
+  配置 Jetpack Compose 选项。

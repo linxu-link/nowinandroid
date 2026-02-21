@@ -32,44 +32,63 @@ import org.junit.Test
 import org.junit.runner.RunWith
 
 /**
- * Enables app startups from various states of baseline profile or [CompilationMode]s.
- * Run this benchmark from Studio to see startup measurements, and captured system traces
- * for investigating your app's performance from a cold state.
+ * 启用从各种基线配置文件或 [CompilationMode] 状态的应用程序启动。
+ * 从 Studio 运行此基准测试以查看启动测量，以及用于调查应用程序在冷启动状态下性能的捕获系统跟踪。
  */
 @RunWith(AndroidJUnit4ClassRunner::class)
 class StartupBenchmark {
     @get:Rule
     val benchmarkRule = MacrobenchmarkRule()
 
+    /**
+     * 测试无预编译的启动性能
+     */
     @Test
     fun startupWithoutPreCompilation() = startup(CompilationMode.None())
 
+    /**
+     * 测试部分编译且禁用基线配置文件的启动性能
+     */
     @Test
     fun startupWithPartialCompilationAndDisabledBaselineProfile() = startup(
         CompilationMode.Partial(baselineProfileMode = Disable, warmupIterations = 1),
     )
 
+    /**
+     * 测试使用基线配置文件预编译的启动性能
+     */
     @Test
     fun startupPrecompiledWithBaselineProfile() =
         startup(CompilationMode.Partial(baselineProfileMode = Require))
 
+    /**
+     * 测试完全预编译的启动性能
+     */
     @Test
     fun startupFullyPrecompiled() = startup(CompilationMode.Full())
 
+    /**
+     * 执行启动基准测试
+     *
+     * @param compilationMode 编译模式
+     */
     private fun startup(compilationMode: CompilationMode) = benchmarkRule.measureRepeated(
         packageName = PACKAGE_NAME,
         metrics = BaselineProfileMetrics.allMetrics,
         compilationMode = compilationMode,
-        // More iterations result in higher statistical significance.
+        // 更多的迭代次数会导致更高的统计显著性
         iterations = 20,
-        startupMode = COLD,
+        startupMode = COLD, // 冷启动模式
         setupBlock = {
+            // 按Home键返回主屏幕
             pressHome()
+            // 允许通知权限
             allowNotifications()
         },
     ) {
+        // 启动活动并允许通知
         startActivityAndAllowNotifications()
-        // Waits until the content is ready to capture Time To Full Display
+        // 等待内容准备好以捕获 Time To Full Display（完全显示时间）
         forYouWaitForContent()
     }
 }

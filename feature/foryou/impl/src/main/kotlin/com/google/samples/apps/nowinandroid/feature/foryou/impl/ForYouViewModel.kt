@@ -41,6 +41,15 @@ import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
+/**
+ * "为你推荐"页面的 ViewModel
+ *
+ * 负责管理：
+ * - 引导流程状态
+ * - 新闻订阅源状态
+ * - 用户话题选择
+ * - 深度链接处理
+ */
 @HiltViewModel
 class ForYouViewModel @Inject constructor(
     private val savedStateHandle: SavedStateHandle,
@@ -51,9 +60,16 @@ class ForYouViewModel @Inject constructor(
     getFollowableTopics: GetFollowableTopicsUseCase,
 ) : ViewModel() {
 
+    /**
+     * 是否显示引导流程
+     */
     private val shouldShowOnboarding: Flow<Boolean> =
         userDataRepository.userData.map { !it.shouldHideOnboarding }
 
+    /**
+     * 深度链接的新闻资源
+     * 当用户通过通知打开特定新闻时使用
+     */
     val deepLinkedNewsResource = savedStateHandle.getStateFlow<String?>(
         key = DEEP_LINK_NEWS_RESOURCE_ID_KEY,
         null,
@@ -76,6 +92,9 @@ class ForYouViewModel @Inject constructor(
             initialValue = null,
         )
 
+    /**
+     * 是否正在同步数据
+     */
     val isSyncing = syncManager.isSyncing
         .stateIn(
             scope = viewModelScope,
@@ -83,6 +102,9 @@ class ForYouViewModel @Inject constructor(
             initialValue = false,
         )
 
+    /**
+     * 订阅源状态
+     */
     val feedState: StateFlow<NewsFeedUiState> =
         userNewsResourceRepository.observeAllForFollowedTopics()
             .map(NewsFeedUiState::Success)
@@ -92,6 +114,9 @@ class ForYouViewModel @Inject constructor(
                 initialValue = NewsFeedUiState.Loading,
             )
 
+    /**
+     * 引导流程 UI 状态
+     */
     val onboardingUiState: StateFlow<OnboardingUiState> =
         combine(
             shouldShowOnboarding,
@@ -109,24 +134,47 @@ class ForYouViewModel @Inject constructor(
                 initialValue = OnboardingUiState.Loading,
             )
 
+    /**
+     * 更新话题选择状态
+     *
+     * @param topicId 话题 ID
+     * @param isChecked 是否选中
+     */
     fun updateTopicSelection(topicId: String, isChecked: Boolean) {
         viewModelScope.launch {
             userDataRepository.setTopicIdFollowed(topicId, isChecked)
         }
     }
 
+    /**
+     * 更新新闻资源收藏状态
+     *
+     * @param newsResourceId 新闻资源 ID
+     * @param isChecked 是否收藏
+     */
     fun updateNewsResourceSaved(newsResourceId: String, isChecked: Boolean) {
         viewModelScope.launch {
             userDataRepository.setNewsResourceBookmarked(newsResourceId, isChecked)
         }
     }
 
+    /**
+     * 设置新闻资源为已读
+     *
+     * @param newsResourceId 新闻资源 ID
+     * @param viewed 是否已读
+     */
     fun setNewsResourceViewed(newsResourceId: String, viewed: Boolean) {
         viewModelScope.launch {
             userDataRepository.setNewsResourceViewed(newsResourceId, viewed)
         }
     }
 
+    /**
+     * 处理深度链接打开事件
+     *
+     * @param newsResourceId 新闻资源 ID
+     */
     fun onDeepLinkOpened(newsResourceId: String) {
         if (newsResourceId == deepLinkedNewsResource.value?.id) {
             savedStateHandle[DEEP_LINK_NEWS_RESOURCE_ID_KEY] = null
@@ -140,6 +188,9 @@ class ForYouViewModel @Inject constructor(
         }
     }
 
+    /**
+     * 关闭引导流程
+     */
     fun dismissOnboarding() {
         viewModelScope.launch {
             userDataRepository.setShouldHideOnboarding(true)
@@ -147,6 +198,9 @@ class ForYouViewModel @Inject constructor(
     }
 }
 
+/**
+ * 记录深度链接打开事件的扩展函数
+ */
 private fun AnalyticsHelper.logNewsDeepLinkOpen(newsResourceId: String) =
     logEvent(
         AnalyticsEvent(

@@ -22,26 +22,38 @@ import androidx.test.uiautomator.Until
 import com.google.samples.apps.nowinandroid.flingElementDownUp
 import com.google.samples.apps.nowinandroid.waitForObjectOnTopAppBar
 
+/**
+ * 导航到"兴趣"页面
+ */
 fun MacrobenchmarkScope.goToInterestsScreen() {
-    device.findObject(By.text("Interests")).click()
+    device.findObject(By.text("Interests")).click() // 点击"兴趣"导航项
     device.waitForIdle()
-    // Wait until interests are shown on screen
+    // 等待兴趣页面显示在屏幕上
     waitForObjectOnTopAppBar(By.text("Interests"))
 
-    // Wait until content is loaded by checking if interests are loaded
+    // 等待内容加载完成（通过检查加载指示器是否消失）
     device.wait(Until.gone(By.res("loadingWheel")), 5_000)
 }
 
+/**
+ * 在话题列表中向下向上滚动
+ */
 fun MacrobenchmarkScope.interestsScrollTopicsDownUp() {
     device.wait(Until.hasObject(By.res("interests:topics")), 5_000)
     val topicsList = device.findObject(By.res("interests:topics"))
     device.flingElementDownUp(topicsList)
 }
 
+/**
+ * 等待话题加载完成
+ */
 fun MacrobenchmarkScope.interestsWaitForTopics() {
     device.wait(Until.hasObject(By.text("Accessibility")), 30_000)
 }
 
+/**
+ * 切换话题的收藏状态
+ */
 fun MacrobenchmarkScope.interestsToggleBookmarked() {
     val topicsList = device.findObject(By.res("interests:topics"))
     val checkable = topicsList.findObject(By.checkable(true))
