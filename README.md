@@ -22,7 +22,7 @@ Now in Android 应用
 
 ## 截图
 
-![image](docs/images/screenshots.png")
+![image](https://github.com/linxu-link/nowinandroid/blob/main/docs/images/screenshots.png)
 
 # 开发环境
 
