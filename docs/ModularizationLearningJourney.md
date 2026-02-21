@@ -1,12 +1,10 @@
-# Modularization learning journey
+# 模块化学习之旅
 
-In this learning journey you will learn about the modularization strategy used
-to create modules in the Now in Android app. For the theory behind modularization, check out
-[the official guidance](https://developer.android.com/topic/modularization).
+在这个学习之旅中，您将了解用于在 Now in Android 应用中创建模块的模块化策略。关于模块化的理论，请查看[官方指南](https://developer.android.com/topic/modularization)。
 
-**IMPORTANT:** Every module has a dependency graph in its README ([example for the app module](https://github.com/android/nowinandroid/tree/main/app)) which can be useful for understanding the overall structure of the project.
+**重要提示：** 每个模块在其 README 中都有依赖图（例如 [app 模块的依赖图](https://github.com/android/nowinandroid/tree/main/app)），这对于理解项目的整体结构非常有用。
 
-## Module types
+## 模块类型
 
 ```mermaid
 graph TB
@@ -18,7 +16,7 @@ graph TB
     :core:network[network]:::android-library
     :core:ui[ui]:::android-library
   end
-  subgraph :feature 
+  subgraph :feature
     direction TB
     :feature:topic[topic]:::android-feature
     :feature:foryou[foryou]:::android-feature
@@ -45,7 +43,7 @@ classDef android-library fill:#9BF6FF,stroke:#000,stroke-width:2px,color:#000;
 classDef jvm-library fill:#BDB2FF,stroke:#000,stroke-width:2px,color:#000;
 ```
 
-<details><summary>📋 Graph legend</summary>
+<details><summary>📋 图表图例</summary>
 
 ```mermaid
 graph TB
@@ -60,51 +58,47 @@ classDef jvm-library fill:#BDB2FF,stroke:#000,stroke-width:2px,color:#000;
 
 </details>
 
-**Top tip**: A module graph (shown above) can be useful during modularization planning for
-visualizing dependencies between modules.
+**顶级提示**：模块图（见上文）在模块化规划期间可用于可视化模块之间的依赖关系。
 
-The Now in Android app contains the following types of modules:
+Now in Android 应用包含以下类型的模块：
 
-### The `app` module
-This contains app level and scaffolding classes that bind the rest of the codebase, such as
-`MainActivity`, `NiaApp` and app-level controlled navigation. A good example of this is the navigation setup through `NiaNavHost` and the bottom navigation bar setup through `TopLevelDestination`. The `app` module depends on all `feature` modules and required `core` modules.
+### `app` 模块
+包含应用级和脚手架类，用于绑定其余代码库，例如 `MainActivity`、`NiaApp` 和应用级控制的导航。一个很好的例子是通过 `NiaNavHost` 的导航设置和通过 `TopLevelDestination` 的底部导航栏设置。`app` 模块依赖所有 `feature` 模块和所需的 `core` 模块。
 
-### Feature modules 
-These are feature-specific modules that handle a single responsibility in the app. For example, the `ForYou` feature handles all content and UI state for the "ForYou" screen. Feature modules aren't Gradle modules themselves, they are split into two submodules: 
+### 功能模块
+这些是处理应用中单一职责的特定功能模块。例如，`ForYou` 功能处理"为你推荐"屏幕的所有内容和 UI 状态。功能模块本身不是 Gradle 模块，它们被拆分为两个子模块：
 
-* `api` - contains navigation keys
-* `impl` - contains everything else
+* `api` - 包含导航键
+* `impl` - 包含其他所有内容
 
-This approach allows features to navigate to other features by using the target feature's navigation keys. A feature's `api` and `impl` modules can be used by any app, including test or other flavoured apps. If a class is needed only by one feature module, it should remain within that module. If not, it should be placed into an appropriate `core` module. 
+这种方法允许功能通过使用目标功能的导航键来导航到其他功能。功能的 `api` 和 `impl` 模块可供任何应用使用，包括测试或其他风味的应用。如果一个类只需要一个功能模块使用，它应该保留在该模块内。否则，应将其放入适当的 `core` 模块。
 
-A feature's `api` module should not depend on another feature's `api` or `impl` module. A feature's `impl` should only depend on another feature's `api` module. Both submodules should only depend on the `core` modules that they require. 
+功能的 `api` 模块不应依赖另一个功能的 `api` 或 `impl` 模块。功能的 `impl` 应该只依赖另一个功能的 `api` 模块。两个子模块只能依赖它们所需的 `core` 模块。
 
-### Core modules 
-These are common library modules containing auxiliary code and specific dependencies that
-  need to be shared between other modules in the app. These modules can depend on other core
-  modules, but they shouldn’t depend on feature nor app modules.
+### Core 模块
+这些是包含辅助代码和需要在应用其他模块之间共享的特定依赖项的通用库模块。这些模块可以依赖其他 core 模块，但它们不应该依赖功能或 app 模块。
 
-### Miscellaneous modules
-For example, `sync`, `benchmark` and `test` modules, as well as `app-nia-catalog` - a catalog app for displaying our design system quickly.
+### 其他模块
+例如，`sync`、`benchmark` 和 `test` 模块，以及 `app-nia-catalog` —— 一个用于快速展示我们设计系统的目录应用。
 
-## Examples
+## 示例
 
 <table>
   <tr>
-   <td><strong>Name</strong>
+   <td><strong>名称</strong>
    </td>
-   <td><strong>Responsibilities</strong>
+   <td><strong>职责</strong>
    </td>
-   <td><strong>Key classes and good examples</strong>
+   <td><strong>关键类和良好示例</strong>
    </td>
   </tr>
   <tr>
    <td><code>app</code>
    </td>
-   <td>Brings everything together required for the app to function correctly. This includes UI scaffolding and navigation. 
+   <td>将应用正常运行所需的所有内容整合在一起。包括 UI 脚手架和导航。
    </td>
    <td><code>NiaApp, MainActivity</code><br>
-   App-level controlled navigation via <code>NiaNavHost, NiaAppState, TopLevelDestination</code>
+   通过 <code>NiaNavHost, NiaAppState, TopLevelDestination</code> 进行应用级控制的导航
    </td>
   </tr>
   <tr>
@@ -112,10 +106,8 @@ For example, `sync`, `benchmark` and `test` modules, as well as `app-nia-catalog
    <code>feature:2:api</code><br>
    ...
    </td>
-   <td>Navigation keys and functions that other features can use to navigate to this feature.<br><br>
-   For example: The <code>:topic:api</code> module exposes a <code>Navigator.navigateToTopic</code> function that the
-   <code>:interests:impl</code> module uses to navigate from the <code>InterestsScreen</code> to the <code>TopicScreen</code> when
-   a topic is clicked. 
+   <td>其他功能可用于导航到此功能的导航键和函数。<br><br>
+   例如：<code>:topic:api</code> 模块暴露了一个 <code>Navigator.navigateToTopic</code> 函数，<code>:interests:impl</code> 模块使用它从 <code>InterestsScreen</code> 导航到 <code>TopicScreen</code>（当点击主题时）。
    </td>
    <td><code>TopicNavKey</code>
    </td>
@@ -125,11 +117,11 @@ For example, `sync`, `benchmark` and `test` modules, as well as `app-nia-catalog
    <code>feature:2:impl</code><br>
    ...
    </td>
-   <td>Functionality associated with a specific feature or user journey. Typically contains UI components and ViewModels which read data from other modules.<br>
-   Examples include:<br>
+   <td>与特定功能或用户旅程相关的功能。通常包含 UI 组件和从其他模块读取数据的 ViewModel。<br>
+   示例包括：<br>
    <ul>
-      <li><a href="https://github.com/android/nowinandroid/tree/main/feature/topic/impl"><code>feature:topic:impl</code></a> displays information about a topic on the TopicScreen.</li>
-      <li><a href="https://github.com/android/nowinandroid/tree/main/feature/foryou/impl"><code>feature:foryou:impl</code></a> which displays the user's news feed, and onboarding during first run, on the For You screen.</li>
+      <li><a href="https://github.com/android/nowinandroid/tree/main/feature/topic/impl"><code>feature:topic:impl</code></a> 在 TopicScreen 上显示主题信息。</li>
+      <li><a href="https://github.com/android/nowinandroid/tree/main/feature/foryou/impl"><code>feature:foryou:impl</code></a> 在 For You 屏幕上显示用户的新闻订阅源和首次运行时的引导。</li>
       </ul>
    </td>
    <td><code>TopicScreen</code><br>
@@ -139,7 +131,7 @@ For example, `sync`, `benchmark` and `test` modules, as well as `app-nia-catalog
   <tr>
    <td><code>core:data</code>
    </td>
-   <td>Fetching app data from multiple sources, shared by different features.
+   <td>从多个来源获取应用数据，由不同功能共享。
    </td>
    <td><code>TopicsRepository</code><br>
    </td>
@@ -147,16 +139,16 @@ For example, `sync`, `benchmark` and `test` modules, as well as `app-nia-catalog
   <tr>
    <td><code>core:designsystem</code>
    </td>
-   <td>Design system which includes Core UI components (many of which are customized Material 3 components), app theme and icons. The design system can be viewed by running the <code>app-nia-catalog</code> run configuration. 
+   <td>设计系统，包括核心 UI 组件（其中许多是定制的 Material 3 组件）、应用主题和图标。可以通过运行 <code>app-nia-catalog</code> 运行配置来查看设计系统。
    </td>
    <td>
-   <code>NiaIcons</code>    <code>NiaButton</code>    <code>NiaTheme</code> 
+   <code>NiaIcons</code>    <code>NiaButton</code>    <code>NiaTheme</code>
    </td>
   </tr>
   <tr>
    <td><code>core:ui</code>
    </td>
-   <td>Composite UI components and resources used by feature modules, such as the news feed. Unlike the <code>designsystem</code> module, it is dependent on the data layer since it renders models, like news resources. 
+   <td>功能模块使用的复合 UI 组件和资源，例如新闻订阅源。与 <code>designsystem</code> 模块不同，它依赖于数据层，因为它渲染模型，如新闻资源。
    </td>
    <td> <code>NewsFeed</code> <code>NewsResourceCardExpanded</code>
    </td>
@@ -164,7 +156,7 @@ For example, `sync`, `benchmark` and `test` modules, as well as `app-nia-catalog
   <tr>
    <td><code>core:common</code>
    </td>
-   <td>Common classes shared between modules.
+   <td>模块之间共享的通用类。
    </td>
    <td><code>NiaDispatchers</code><br>
    <code>Result</code>
@@ -173,7 +165,7 @@ For example, `sync`, `benchmark` and `test` modules, as well as `app-nia-catalog
   <tr>
    <td><code>core:network</code>
    </td>
-   <td>Making network requests and handling responses from a remote data source.
+   <td>发起网络请求并处理来自远程数据源的响应。
    </td>
    <td><code>RetrofitNiaNetworkApi</code>
    </td>
@@ -181,7 +173,7 @@ For example, `sync`, `benchmark` and `test` modules, as well as `app-nia-catalog
   <tr>
    <td><code>core:testing</code>
    </td>
-   <td>Testing dependencies, repositories and util classes.
+   <td>测试依赖项、仓库和工具类。
    </td>
    <td><code>NiaTestRunner</code><br>
    <code>TestDispatcherRule</code>
@@ -190,7 +182,7 @@ For example, `sync`, `benchmark` and `test` modules, as well as `app-nia-catalog
   <tr>
    <td><code>core:datastore</code>
    </td>
-   <td>Storing persistent data using DataStore.
+   <td>使用 DataStore 存储持久化数据。
    </td>
    <td><code>NiaPreferences</code><br>
    <code>UserPreferencesSerializer</code>
@@ -199,17 +191,17 @@ For example, `sync`, `benchmark` and `test` modules, as well as `app-nia-catalog
   <tr>
    <td><code>core:database</code>
    </td>
-   <td>Local database storage using Room.
+   <td>使用 Room 进行本地数据库存储。
    </td>
    <td><code>NiaDatabase</code><br>
    <code>DatabaseMigrations</code><br>
-   <code>Dao</code> classes
+   <code>Dao</code> 类
    </td>
   </tr>
   <tr>
    <td><code>core:model</code>
    </td>
-   <td>Model classes used throughout the app.
+   <td>整个应用使用的模型类。
    </td>
    <td><code>Topic</code><br>
    <code>Episode</code><br>
@@ -218,18 +210,17 @@ For example, `sync`, `benchmark` and `test` modules, as well as `app-nia-catalog
   </tr>
 </table>
 
-## Dependency graphs
-Each module has its own `README.md` file containing a module graph (e.g. [`:app` module graph](../app/README.md#module-dependency-graph)).  
-When modules dependencies change, module graphs are automatically updated by the [Build.yaml](../.github/workflows/Build.yaml) workflow.  
-You can also manually update the graphs by running the `graphUpdate` task.
+## 依赖图
+每个模块都有自己的 `README.md` 文件，包含模块依赖图（例如 [`:app` 模块依赖图](../app/README.md#module-dependency-graph)）。
+当模块依赖发生变化时，模块依赖图会由 [Build.yaml](../.github/workflows/Build.yaml) 工作流自动更新。
+您也可以通过运行 `graphUpdate` 任务手动更新依赖图。
 
-## Further considerations
+## 进一步考虑
 
-Our modularization approach was defined taking into account the “Now in Android” project roadmap, upcoming work and new features. Additionally, our aim this time around was to find the right balance between overmodularizing a relatively small app and using this opportunity to showcase a modularization pattern fit for a much larger codebase, closer to real world apps in production environments.
+我们的模块化方法是考虑到"Now in Android"项目路线图、即将开展的工作和新功能而制定的。此外，我们这一次的目的是在过度模块化一个相对较小的应用与利用此机会展示适合更大代码库的模块化模式（更接近生产环境中的真实应用）之间找到适当的平衡。
 
-This approach was discussed with the Android community, and evolved taking their feedback into account. With modularization however, there isn’t one right answer that makes all others wrong. Ultimately, there are many ways and approaches to modularizing an app and rarely does one approach fit all purposes, codebases and team preferences. This is why planning beforehand and taking into account all goals, problems you’re trying to solve, future work and predicting potential stepping stones are all crucial steps for defining the best fit structure under your own, unique circumstances. Developers can benefit from a brainstorming session to draw out a graph of modules and dependencies to visualize and plan this better.
+这种方法曾与 Android 社区讨论过，并采纳他们的反馈而不断演进。然而，在模块化方面，没有一种正确的答案会让其他答案都错误。最终，模块化应用有很多方法和途径，很少有一种方法适合所有目的、代码库和团队偏好。这就是为什么事先计划并考虑所有目标、您要解决的问题、未来工作以及预测潜在的绊脚石，对于在您自己独特的环境下定义最合适的结构都至关重要。开发者可以受益于头脑风暴会议，绘制模块和依赖关系图，以便更好地可视化和规划。
 
-Our approach is such an example - we don’t expect it to be an unchangeable structure applicable to all cases, and in fact, it could evolve and change in the future. It’s a general guideline we found to be the best fit for our project and offer it as one example you can further modify, expand and build on top of. One way of doing this would be to increase the granularity of the codebase even more. Granularity is the extent to which your codebase is composed of modules. If your data layer is small, it’s fine to keep it in a single module. But once the number of repositories and data sources starts to grow, it might be worth considering splitting them into separate modules.
+我们的方法就是这样一个例子 —— 我们不期望它是一个适用于所有情况的不变结构，实际上，它可能在未来会演变和改变。这是一个我们发现最适合项目的总体指南，并将其作为您可以进一步修改、扩展和构建的一个示例。做到这一点的一种方法是进一步增加代码库的粒度。粒度是指您的代码库由模块组成的程度。如果您的数据层很小，将其保存在单个模块中是可以的。但一旦存储库和数据源的数量开始增长，可能值得考虑将它们拆分为单独的模块。
 
-We are also always open to your constructive feedback - learning from the community and exchanging ideas is one of the key elements to improving our guidance.
-
+我们始终欢迎您的建设性反馈 —— 向社区学习并交流想法是改进我们指导的关键要素之一。

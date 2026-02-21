@@ -1,33 +1,30 @@
 #!/bin/bash
 #
-# Usage: Copy this file to your repository's .git/hooks directory. Name it
-# "pre-push" and set the executable bit.
+# 使用方法：将此文件复制到您仓库的 .git/hooks 目录中。将其命名为
+# "pre-push" 并设置可执行权限。
 #
-# This hook aborts git push when the log message of any commits to be pushed
-# starts with "WIP" (work in progress) or "stash", if the remote ref begins
-# with "refs/for/". This prevents incomplete/unwanted commits from being
-# pushed to Gerrit instances.
+# 当要推送的任何提交的日志消息以 "WIP"（进行中）或 "stash" 开头，
+# 且远程引用以 "refs/for/" 开头时，此钩子会中止 git push。这可以防止
+# 不完整/不需要的提交被推送到 Gerrit 实例。
 #
-# When pushing to Gerrit, this hook also runs a Gradle build similar to
-# Gerrit's presubmit, to help catch errors locally and reduce churn on CLs.
+# 推送到 Gerrit 时，此钩子还会运行类似于 Gerrit 预提交的 Gradle 构建，
+# 以帮助在本地捕获错误并减少 CL 上的来回修改。
 #
-# Remaining comments are copied from .git/hooks/pre-push.sample.
+# 其余注释复制自 .git/hooks/pre-push.sample。
 #
-# An example hook script to verify what is about to be pushed. Called by "git
-# push" after it has checked the remote status, but before anything has been
-# pushed. If this script exits with a non-zero status nothing will be pushed.
+# 一个示例钩子脚本，用于验证即将推送的内容。在 "git push" 检查远程状态后调用，
+# 但在任何内容被推送之前。如果此脚本以非零状态退出，则不会推送任何内容。
 #
-# This hook is called with the following parameters:
+# 使用以下参数调用此钩子：
 #
-# $1 -- Name of the remote to which the push is being done
-# $2 -- URL to which the push is being done
+# $1 -- 要推送到的远程名称
+# $2 -- 要推送到的 URL
 #
-# If pushing without using a named remote those arguments will be equal.
+# 如果不使用命名的远程推送，这些参数将相等。
 #
-# Information about the commits which are being pushed is supplied as lines to
-# the standard input in the form:
+# 有关正在推送的提交的信息以以下形式提供给标准输入：
 #
-#   <local ref> <local sha1> <remote ref> <remote sha1>
+#   <本地引用> <本地 sha1> <远程引用> <远程 sha1>
 
 remote="$1"
 url="$2"
@@ -36,26 +33,26 @@ z40=0000000000000000000000000000000000000000
 
 while read local_ref local_sha remote_ref remote_sha
 do
-  # Handle delete
+  # 处理删除
   if [[ "$local_sha" = "$z40" ]]; then
     echo "$local_ref, $remote_ref"
     :
-  # Move along if we don't match refs/for/
+  # 如果不匹配 refs/for/ 则继续
   elif [[ ! "$remote_ref" =~ ^refs/for/.+ ]]; then
     echo "$local_ref, $remote_ref"
     :
   else
     echo "$local_ref, $local_sha, $remote_ref, $remote_sha"
     if [[ "$remote_sha" = "$z40" ]]; then
-      # New branch, examine all commits
+      # 新分支，检查所有提交
       branchname="${remote_ref#refs/for/}"
 
       if [[ "$branchname" =~ % ]]; then
-        # Gerrit allows various push-options by appending them to the remote
-        # using "%<option>=<string>[,<option>=<string>...]". Strip this off.
-        # TODO: '%' is a valid character in branch names, so this could mangle
-        # the branch name. We should find a way to workaround that.
-        echo "NOTE: stripping Gerrit push-options beginning at '%'"
+        # Gerrit 允许通过使用 "%<选项>=<字符串>[,<选项>=<字符串>...]"
+        # 附加到远程来添加各种推送选项。将这些剥离掉。
+        # TODO: '%' 是分支名称中的有效字符，因此可能会损坏
+        # 分支名称。我们应该找到一种方法来绕过这个问题。
+        echo "注意：剥离以 '%' 开头的 Gerrit 推送选项"
         branchname=${branchname%%\%*}
       fi
 
@@ -67,26 +64,26 @@ do
         range="$local_sha"
       fi
     else
-      # Update to existing branch, examine new commits
+      # 更新到现有分支，检查新提交
       range="$remote_sha..$local_sha"
     fi
 
-    echo "Examining $range"
+    echo "正在检查 $range"
 
-    # Check for WIP/stash commit
+    # 检查 WIP/stash 提交
     commit=`git rev-list -n 1 -i --grep '^WIP' --grep '^stash' "$range"`
     if [[ -n "$commit" ]]; then
-      echo >&2 "Found WIP/stash commit in $local_ref, not pushing ($commit)"
+      echo >&2 "在 $local_ref 中发现 WIP/stash 提交，不推送 ($commit)"
       exit 1
     fi
 
-    # At least one ref is going to Gerrit, so we should run additional checks
+    # 至少有一个引用将推送到 Gerrit，因此我们应该运行额外检查
     run_checks=true
   fi
 done
 
 if [[ -n "$run_checks" ]]; then
-  # pre-push usually executes in the repository root, but just to be safe...
+  # pre-push 通常在仓库根目录执行，但为了安全起见...
   cd "$(git rev-parse --show-toplevel)"
   ./gradlew check
   exit $?

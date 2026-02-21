@@ -15,27 +15,26 @@
 # limitations under the License.
 
 RED='\033[0;1;31m'
-NC='\033[0m' # No Color
+NC='\033[0m' # 无颜色
 
 GIT_DIR=$(git rev-parse --git-dir 2> /dev/null)
 GIT_ROOT=$(git rev-parse --show-toplevel 2> /dev/null)
 
-echo "Installing git commit-message hook"
+echo "正在安装 git 提交信息钩子"
 echo
 curl -sSLo "${GIT_DIR}/hooks/commit-msg" \
     "https://gerrit-review.googlesource.com/tools/hooks/commit-msg" \
   && chmod +x "${GIT_DIR}/hooks/commit-msg"
 
-echo "Installing git pre-push hook"
+echo "正在安装 git pre-push 钩子"
 echo
 mkdir -p "${GIT_DIR}/hooks/"
 cp "${GIT_ROOT}/tools/pre-push" "${GIT_DIR}/hooks/pre-push" \
   && chmod +x "${GIT_DIR}/hooks/pre-push"
 
 cat <<-EOF
-Checking the following settings helps avoid miscellaneous issues:
-  * Settings -> Editor -> General -> Remove trailing spaces on: Modified lines
-  * Settings -> Editor -> General -> Ensure every saved file ends with a line break
-  * Settings -> Editor -> General -> Auto Import -> Optimize imports on the fly (for both Kotlin\
- and Java)
+检查以下设置有助于避免各种问题：
+  * 设置 -> 编辑器 -> 通用 -> 删除尾随空格：修改的行
+  * 设置 -> 编辑器 -> 通用 -> 确保每个保存的文件以换行符结尾
+  * 设置 -> 编辑器 -> 通用 -> 自动导入 -> 实时优化导入（适用于 Kotlin 和 Java）
 EOF

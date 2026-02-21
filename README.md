@@ -2,206 +2,151 @@
 
 <a href="https://play.google.com/store/apps/details?id=com.google.samples.apps.nowinandroid"><img src="https://play.google.com/intl/en_us/badges/static/images/badges/en_badge_web_generic.png" height="70"></a>
 
-Now in Android App
+Now in Android 应用
 ==================
 
-**Learn how this app was designed and built in the [design case study](https://goo.gle/nia-figma), [architecture learning journey](docs/ArchitectureLearningJourney.md) and [modularization learning journey](docs/ModularizationLearningJourney.md).**
+**了解此应用的设计和构建过程，请参阅[设计案例研究](https://goo.gle/nia-figma)、[架构学习之旅](docs/ArchitectureLearningJourney.md)和[模块化学习之旅](docs/ModularizationLearningJourney.md)。**
 
-This is the repository for the [Now in Android](https://developer.android.com/series/now-in-android)
-app. It is a **work in progress** 🚧.
+这是 [Now in Android](https://developer.android.com/series/now-in-android) 应用的代码仓库。这是一个**正在开发中**的项目 🚧。
 
-**Now in Android** is a fully functional Android app built entirely with Kotlin and Jetpack Compose. It
-follows Android design and development best practices and is intended to be a useful reference
-for developers. As a running app, it's intended to help developers keep up-to-date with the world
-of Android development by providing regular news updates.
+**Now in Android** 是一个完全基于 Kotlin 和 Jetpack Compose 构建的 Android 应用。它遵循 Android 设计和开发最佳实践，旨在为开发者提供有用的参考。作为一个运行中的应用，它旨在通过提供定期的新闻更新，帮助开发者了解 Android 开发领域的最新动态。
 
-The app is currently in development. The `prodRelease` variant is [available on the Play Store](https://play.google.com/store/apps/details?id=com.google.samples.apps.nowinandroid).
+该应用目前正在开发中。`prodRelease` 变体已在 Play 商店上线。
 
-# Features
+# 功能特点
 
-**Now in Android** displays content from the
-[Now in Android](https://developer.android.com/series/now-in-android) series. Users can browse for
-links to recent videos, articles and other content. Users can also follow topics they are interested
-in, and be notified when new content is published which matches interests they are following.
+**Now in Android** 展示来自
+[Now in Android](https://developer.android.com/series/now-in-android) 系列的内容。用户可以浏览最近视频、文章和其他内容的链接。用户还可以关注自己感兴趣的话题，并在发布与其关注兴趣匹配的新内容时收到通知。
 
-## Screenshots
+## 截图
 
-![Screenshot showing For You screen, Interests screen and Topic detail screen](docs/images/screenshots.png "Screenshot showing For You screen, Interests screen and Topic detail screen")
+![截图显示"为你推荐"屏幕、"兴趣"屏幕和"话题详情"屏幕](docs/images/screenshots.png "截图显示"为你推荐"屏幕、"兴趣"屏幕和"话题详情"屏幕")
 
-# Development Environment
+# 开发环境
 
-**Now in Android** uses the Gradle build system and can be imported directly into Android Studio (make sure you are using the latest stable version available [here](https://developer.android.com/studio)). 
+**Now in Android** 使用 Gradle 构建系统，可以直接导入 Android Studio（请确保使用[此处](https://developer.android.com/studio)提供的最新稳定版本）。
 
-Change the run configuration to `app`.
+将运行配置更改为 `app`。
 
 ![image](https://user-images.githubusercontent.com/873212/210559920-ef4a40c5-c8e0-478b-bb00-4879a8cf184a.png)
 
-The `demoDebug` and `demoRelease` build variants can be built and run (the `prod` variants use a backend server which is not currently publicly available).
+可以构建和运行 `demoDebug` 和 `demoRelease` 构建变体（`prod` 变体使用后端服务器，目前暂未公开）。
 
 ![image](https://user-images.githubusercontent.com/873212/210560507-44045dc5-b6d5-41ca-9746-f0f7acf22f8e.png)
 
-Once you're up and running, you can refer to the learning journeys below to get a better
-understanding of which libraries and tools are being used, the reasoning behind the approaches to
-UI, testing, architecture and more, and how all of these different pieces of the project fit
-together to create a complete app.
+启动运行后，您可以参阅下面的学习之旅，更好地了解所使用的库和工具、UI、测试、架构等方法的背后思考，以及项目的各个部分如何组合在一起创建一个完整的应用。
 
-# Architecture
+# 架构
 
-The **Now in Android** app follows the
-[official architecture guidance](https://developer.android.com/topic/architecture) 
-and is described in detail in the
-[architecture learning journey](docs/ArchitectureLearningJourney.md).
+**Now in Android** 应用遵循[官方架构指南](https://developer.android.com/topic/architecture)，详细说明见[架构学习之旅](docs/ArchitectureLearningJourney.md)。
 
-# Modularization
+# 模块化
 
-The **Now in Android** app has been fully modularized and you can find the detailed guidance and
-description of the modularization strategy used in
-[modularization learning journey](docs/ModularizationLearningJourney.md).
+**Now in Android** 应用已完全模块化，详细的模块化策略指南和说明见[模块化学习之旅](docs/ModularizationLearningJourney.md)。
 
-# Build
+# 构建
 
-The app contains the usual `debug` and `release` build variants. 
+应用包含常规的 `debug` 和 `release` 构建变体。
 
-In addition, the `benchmark` variant of `app` is used to test startup performance and generate a
-baseline profile (see below for more information).
+此外，`app` 的 `benchmark` 变体用于测试启动性能并生成基线配置文件（更多信息见下文）。
 
-`app-nia-catalog` is a standalone app that displays the list of components that are stylized for
-**Now in Android**.
+`app-nia-catalog` 是一个独立应用，用于展示为 **Now in Android** 定制设计的组件列表。
 
-The app also uses
-[product flavors](https://developer.android.com/studio/build/build-variants#product-flavors) to
-control where content for the app should be loaded from.
+应用还使用[产品风味](https://developer.android.com/studio/build/build-variants#product-flavors)来控制应用内容的加载来源。
 
-The `demo` flavor uses static local data to allow immediate building and exploring of the UI.
+`demo` 风味使用静态本地数据，以便立即构建和探索 UI。
 
-The `prod` flavor makes real network calls to a backend server, providing up-to-date content. At 
-this time, there is not a public backend available.
+`prod` 风味向后端服务器发起真实网络请求，提供最新内容。目前暂无公开的后端服务。
 
-For normal development use the `demoDebug` variant. For UI performance testing use the
-`demoRelease` variant. 
+常规开发请使用 `demoDebug` 变体。UI 性能测试请使用 `demoRelease` 变体。
 
-# Testing
+# 测试
 
-To facilitate testing of components, **Now in Android** uses dependency injection with
-[Hilt](https://developer.android.com/training/dependency-injection/hilt-android).
+为了便于组件测试，**Now in Android** 使用 [Hilt](https://developer.android.com/training/dependency-injection/hilt-android) 进行依赖注入。
 
-Most data layer components are defined as interfaces.
-Then, concrete implementations (with various dependencies) are bound to provide those interfaces to
-other components in the app.
-In tests, **Now in Android** notably does _not_ use any mocking libraries.
-Instead, the production implementations can be replaced with test doubles using Hilt's testing APIs
-(or via manual constructor injection for `ViewModel` tests).
+大多数数据层组件定义为接口。然后，具体实现（具有各种依赖项）绑定以向应用中的其他组件提供这些接口。值得注意的是，在测试中，**Now in Android** 不使用任何模拟库。相反，可以使用 Hilt 的测试 API 用测试替身替换生产实现（或通过手动构造函数注入进行 ViewModel 测试）。
 
-These test doubles implement the same interface as the production implementations and generally
-provide a simplified (but still realistic) implementation with additional testing hooks.
-This results in less brittle tests that may exercise more production code, instead of just verifying
-specific calls against mocks.
+这些测试替身实现与生产实现相同的接口，通常提供简化的（但仍真实）实现并带有额外的测试钩子。这会产生更稳定的测试，可能会执行更多生产代码，而不是仅仅验证对模拟对象的特定调用。
 
-Examples:
-- In instrumentation tests, a temporary folder is used to store the user's preferences, which is
-  wiped after each test.
-  This allows using the real `DataStore` and exercising all related code, instead of mocking the 
-  flow of data updates.
+示例：
 
-- There are `Test` implementations of each repository, which implement the normal, full repository
-  interface and also provide test-only hooks.
-  `ViewModel` tests use these `Test` repositories, and thus can use the test-only hooks to
-  manipulate the state of the `Test` repository and verify the resulting behavior, instead of
-  checking that specific repository methods were called.
+- 在仪器测试中，使用临时文件夹存储用户偏好，每次测试后都会清除。这允许使用真实的 DataStore 并执行所有相关代码，而不是模拟数据更新流程。
 
-To run the tests execute the following gradle tasks: 
+- 每个存储库都有 `Test` 实现，它们实现正常的完整存储库接口并提供仅测试的钩子。ViewModel 测试使用这些 `Test` 存储库，因此可以使用仅测试的钩子来操作 `Test` 存储库的状态并验证结果行为，而不是检查是否调用了特定的存储库方法。
 
-- `testDemoDebug` run all local tests against the `demoDebug` variant. Screenshot tests will fail
-(see below for explanation). To avoid this, run `recordRoborazziDemoDebug` prior to running unit tests.
-- `connectedDemoDebugAndroidTest` run all instrumented tests against the `demoDebug` variant. 
+要运行测试，请执行以下 gradle 任务：
+
+- `testDemoDebug` 运行针对 `demoDebug` 变体的所有本地测试。截图测试会失败（见下方解释）。为避免此问题，请在运行单元测试之前运行 `recordRoborazziDemoDebug`。
+- `connectedDemoDebugAndroidTest` 运行针对 `demoDebug` 变体的所有仪器测试。
 
 > [!NOTE]
-> You should not run `./gradlew test` or `./gradlew connectedAndroidTest` as this will execute 
-tests against _all_ build variants which is both unnecessary and will result in failures as only the
-`demoDebug` variant is supported. No other variants have any tests (although this might change in future). 
+> 您不应该运行 `./gradlew test` 或 `./gradlew connectedAndroidTest`，因为这将针对所有构建变体执行测试，这既不必要也会导致失败，因为只有 `demoDebug` 变体受支持。其他变体没有任何测试（尽管将来可能会改变）。
 
-## Screenshot tests
-A screenshot test takes a screenshot of a screen or a UI component within the app, and compares it 
-with a previously recorded screenshot which is known to be rendered correctly. 
+## 截图测试
+截图测试会对应用中的屏幕或 UI 组件进行截图，并将其与之前记录的已知正确渲染的截图进行比较。
 
-For example, Now in Android has [screenshot tests](https://github.com/android/nowinandroid/blob/main/app/src/testDemo/kotlin/com/google/samples/apps/nowinandroid/ui/NiaAppScreenSizesScreenshotTests.kt)
-to verify that the navigation is displayed correctly on different screen sizes 
-([known correct screenshots](https://github.com/android/nowinandroid/tree/main/app/src/testDemo/screenshots)). 
+例如，Now in Android 有[截图测试](https://github.com/android/nowinandroid/blob/main/app/src/testDemo/kotlin/com/google/samples/apps/nowinandroid/ui/NiaAppScreenSizesScreenshotTests.kt)来验证不同屏幕尺寸下导航的显示是否正确（[已知正确的截图](https://github.com/android/nowinandroid/tree/main/app/src/testDemo/screenshots)）。
 
-Now In Android uses [Roborazzi](https://github.com/takahirom/roborazzi) to run screenshot tests
-of certain screens and UI components. When working with screenshot tests the following gradle tasks are useful:
+Now In Android 使用 [Roborazzi](https://github.com/takahirom/roborazzi) 对某些屏幕和 UI 组件运行截图测试。使用截图测试时，以下 gradle 任务很有用：
 
-- `verifyRoborazziDemoDebug` run all screenshot tests, verifying the screenshots against the known
-correct screenshots.
-- `recordRoborazziDemoDebug` record new "known correct" screenshots. Use this command when you have
-made changes to the UI and manually verified that they are rendered correctly. Screenshots will be
-stored in `modulename/src/test/screenshots`.
-- `compareRoborazziDemoDebug` create comparison images between failed tests and the known correct
-images. These can also be found in `modulename/src/test/screenshots`. 
+- `verifyRoborazziDemoDebug` 运行所有截图测试，将截图与已知的正确截图进行验证。
+- `recordRoborazziDemoDebug` 记录新的"已知正确"截图。当您对 UI 进行了更改并手动验证渲染正确后，请使用此命令。截图将存储在 `modulename/src/test/screenshots` 中。
+- `compareRoborazziDemoDebug` 创建失败测试与已知正确图片之间的比较图片。这些也可以在 `modulename/src/test/screenshots` 中找到。
 
 > [!NOTE]
-> **Note on failing screenshot tests**   
-> The known correct screenshots stored in this repository are recorded on CI using Linux. Other
-platforms may (and probably will) generate slightly different images, making the screenshot tests fail. 
-When working on a non-Linux platform, a workaround to this is to run `recordRoborazziDemoDebug` on the
-`main` branch before starting work. After making changes, `verifyRoborazziDemoDebug` will identify only
-legitimate changes. 
+> **关于截图测试失败的说明**
+> 此仓库中存储的已知正确截图是在 CI 上使用 Linux 记录。其他平台可能会（并且可能会）生成略有不同的图像，导致截图测试失败。在非 Linux 平台上，解决方法是在开始工作之前在 `main` 分支上运行 `recordRoborazziDemoDebug`。进行更改后，`verifyRoborazziDemoDebug` 将只识别真正的更改。
 
-For more information about screenshot testing 
-[check out this talk](https://www.droidcon.com/2023/11/15/easy-screenshot-testing-with-compose/).
+有关截图测试的更多信息，[请查看此演讲](https://www.droidcon.com/2023/11/15/easy-screenshot-testing-with-compose/)。
 
 # UI
-The app was designed using [Material 3 guidelines](https://m3.material.io/). Learn more about the design process and 
-obtain the design files in the [Now in Android Material 3 Case Study](https://goo.gle/nia-figma) (design assets [also available as a PDF](docs/Now-In-Android-Design-File.pdf)).
 
-The Screens and UI elements are built entirely using [Jetpack Compose](https://developer.android.com/jetpack/compose). 
+应用采用 [Material 3 指南](https://m3.material.io/)设计。详细了解设计过程并获取设计文件，请参阅 [Now in Android Material 3 案例研究](https://goo.gle/nia-figma)（设计资源也可作为 PDF 获取：[docs/Now-In-Android-Design-File.pdf](docs/Now-In-Android-Design-File.pdf)）。
 
-The app has two themes: 
+屏幕和 UI 元素完全使用 [Jetpack Compose](https://developer.android.com/jetpack/compose) 构建。
 
-- Dynamic color - uses colors based on the [user's current color theme](https://material.io/blog/announcing-material-you) (if supported)
-- Default theme - uses predefined colors when dynamic color is not supported
+应用有两个主题：
 
-Each theme also supports dark mode. 
+- 动态颜色 - 使用基于用户当前颜色主题的颜色（如果支持）
+- 默认主题 - 当不支持动态颜色时使用预定义颜色
 
-The app uses adaptive layouts to
-[support different screen sizes](https://developer.android.com/guide/topics/large-screens/support-different-screen-sizes).
+每个主题还支持深色模式。
 
-Find out more about the [UI architecture here](docs/ArchitectureLearningJourney.md#ui-layer).
+应用使用自适应布局来[支持不同的屏幕尺寸](https://developer.android.com/guide/topics/large-screens/support-different-screen-sizes)。
 
-# Performance
+在[此处](docs/ArchitectureLearningJourney.md#ui-layer)详细了解 UI 架构。
 
-## Benchmarks
+# 性能
 
-Find all tests written using [`Macrobenchmark`](https://developer.android.com/topic/performance/benchmarking/macrobenchmark-overview)
-in the `benchmarks` module. This module also contains the test to generate the Baseline profile.
+## 基准测试
 
-## Baseline profiles
+使用 [`Macrobenchmark`](https://developer.android.com/topic/performance/benchmarking/macrobenchmark-overview) 编写的所有测试都在 `benchmarks` 模块中。该模块还包含用于生成基线配置文件的测试。
 
-The baseline profile for this app is located at [`app/src/main/baseline-prof.txt`](app/src/main/baseline-prof.txt).
-It contains rules that enable AOT compilation of the critical user path taken during app launch.
-For more information on baseline profiles, read [this document](https://developer.android.com/studio/profile/baselineprofiles).
+## 基线配置文件
+
+此应用的基线配置文件位于 [`app/src/main/baseline-prof.txt`](app/src/main/baseline-prof.txt)。
+它包含在应用启动期间关键用户路径启用 AOT 编译的规则。
+
+有关基线配置文件的更多信息，请阅读[此文档](https://developer.android.com/studio/profile/baselineprofiles)。
 
 > [!NOTE]
-> The baseline profile needs to be re-generated for release builds that touch code which changes app startup.
+> 需要为影响应用启动的发布构建重新生成基线配置文件。
 
-To generate the baseline profile, select the `benchmark` build variant and run the
-`BaselineProfileGenerator` benchmark test on an AOSP Android Emulator.
-Then copy the resulting baseline profile from the emulator to [`app/src/main/baseline-prof.txt`](app/src/main/baseline-prof.txt).
+要生成基线配置文件，请选择 `benchmark` 构建变体，并在 AOSP Android 模拟器上运行 `BaselineProfileGenerator` 基准测试。
+然后将生成的基线配置文件从模拟器复制到 [`app/src/main/baseline-prof.txt`](app/src/main/baseline-prof.txt)。
 
-## Compose compiler metrics
+## Compose 编译器指标
 
-Run the following command to get and analyze compose compiler metrics:
+运行以下命令获取和分析 compose 编译器指标：
 
 ```bash
 ./gradlew assembleRelease -PenableComposeCompilerMetrics=true -PenableComposeCompilerReports=true
 ```
 
-The reports files will be added to [build/compose-reports](build/compose-reports). The metrics files will also be 
-added to [build/compose-metrics](build/compose-metrics).
+报告文件将添加到 [build/compose-reports](build/compose-reports)。指标文件也将添加到 [build/compose-metrics](build/compose-metrics)。
 
-For more information on Compose compiler metrics, see [this blog post](https://medium.com/androiddevelopers/jetpack-compose-stability-explained-79c10db270c8).
+有关 Compose 编译器指标的更多信息，请参阅[这篇博客文章](https://medium.com/androiddevelopers/jetpack-compose-stability-explained-79c10db270c8)。
 
-# License
+# 许可证
 
-**Now in Android** is distributed under the terms of the Apache License (Version 2.0). See the
-[license](LICENSE) for more information.
+**Now in Android** 根据 Apache 许可证（2.0 版）的条款分发。请参阅[许可证](LICENSE)了解更多信息。
